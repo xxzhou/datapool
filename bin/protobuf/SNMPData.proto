@@ -1,0 +1,81 @@
+message KV_UINT64
+{
+    optional string name = 1;
+    optional uint64 value = 2;
+}
+message KV_STRING
+{
+    optional string name = 1;
+    optional string value = 2;
+}
+
+message IfData
+{	
+    repeated KV_UINT64 uint64_kv = 1;
+    repeated KV_STRING string_kv = 2;
+}
+
+message DiskData
+{	
+    required uint32 index = 1;
+    repeated KV_UINT64 uint64_kv = 2;
+    repeated KV_STRING string_kv = 3;
+}
+
+
+message ProcData
+{    
+    repeated KV_UINT64 uint64_kv = 1;
+    repeated KV_STRING string_kv = 2;
+    repeated IfData	if_info = 3;
+    repeated DiskData	disk_info = 4;
+    repeated StorageData storage_info = 5;
+}
+
+
+message Raid
+{
+    repeated KV_UINT64 uint64_kv = 1;
+    repeated KV_STRING string_kv = 2;
+}
+message PD
+{
+    required uint32 index = 1;
+    repeated KV_UINT64 uint64_kv = 2;
+    repeated KV_STRING string_kv = 3;
+}
+message VD
+{
+    required uint32 index = 1;
+    repeated KV_UINT64 uint64_kv = 2;
+    repeated KV_STRING string_kv = 3;
+}
+message StorageData
+{
+    required uint32 index = 1;
+    repeated KV_UINT64 uint64_kv = 2;
+    repeated KV_STRING string_kv = 3;
+}
+
+message SNMPData
+{
+    required string server_id = 1;
+    required uint32 server_type = 2;
+    required uint32 os_type = 3;
+    required uint32 collect_time = 4;
+    optional string server_ip = 5;
+    optional string server_name = 6;
+    required uint32	mib_type = 7;
+
+    repeated Raid raid_info = 8;
+    repeated PD pd_info = 9;
+    repeated VD vd_info = 10;
+    optional ProcData proc_data = 11;
+    optional string ssd_data = 12;
+    
+    optional uint32 proc_error = 13; //proc采集失败错误码
+    optional uint32 raid_error = 14; //raid采集失败错误码
+    optional uint32 ssd_error = 15; //ssd采集失败错误码
+}
+
+

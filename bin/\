@@ -1,0 +1,120 @@
+#include"SampleClient.h"
+#include<time.h>
+#include<sstream>
+#include<sys/time.h>
+#include"CollectMetric.pb.h"
+#include<google/protobuf/message.h>
+#include<google/protobuf/descriptor.h>
+#include<google/protobuf/io/zero_copy_stream_impl.h>
+#include<google/protobuf/io/coded_stream.h>
+#include<google/protobuf/io/zero_copy_stream_impl_lite.h>
+
+using namespace google::protobuf::io;
+using namespace std;
+
+SampleClient::SampleClient(){}
+SampleClient::~SampleClient(){}
+/*void SampleClient::start()
+{
+    try
+    {
+        ClientSocket client_socket ( "10.1.41.244", 30000 );
+        string reply;
+        time_t rawtime;
+        char * cur_time;
+        struct timeval start;
+        long usec;
+        stringstream ss;
+        string temp;
+        string token(",");
+        while(true){
+            temp="";
+            ss.str("");
+            time(&rawtime);
+            gettimeofday(&start, NULL);
+            cur_time = ctime(&rawtime);
+            temp.append(cur_time,strlen(cur_time)-1);
+            temp.append(token);
+            usec = start.tv_sec * 1000 * 1000 + start.tv_usec;
+            ss<<usec;
+            temp.append(ss.str());
+            temp.append(token);
+            temp.append("IPMI");
+            //string s(snd_buf);
+            //input = ''
+            //temp = "IPMI"; 
+            client_socket << temp;
+            sleep(1);
+            //client_socket >> reply;
+            //cout << reply << endl;
+        }
+    }
+    catch ( SocketException& e )
+    {
+        std::cout << "Exception was caught:" << e.description() << "\n";
+    }
+
+}*/
+void SampleClient::start()
+{
+    try
+    {
+        ClientSocket client_socket ( "10.1.93.103",5555);
+        //ClientSocket client_socket ( "localhost",30000);
+        int pint = 1;
+        if (setsockopt(client_socket.getFD(),SOL_SOCKET, SO_REUSEADDR, &pint,sizeof(pint)) == -1 || setsockopt(client_socket.getFD(),SOL_SOCKET,SO_KEEPALIVE,&pint, sizeof(pint)) == -1
+            )
+        {  
+             perror("setoptions");
+             exit(1);
+        }
+        string reply;
+        time_t rawtime;
+        char * cur_time;
+        struct timeval start;
+        stringstream ss;
+        string temp;
+        string token(",");
+
+        CollectMetric cm;
+        cm.set_server_id("SN10003403");
+        cm.set_data_type("cpu_temp");
+        cm.set_collect_value("40degrees");
+
+        while(true){
+            temp="";
+            ss.str("");
+            time(&rawtime);
+            gettimeofday(&start, NULL);
+            cur_time = ctime(&rawtime);
+            cm.set_collect_time("20120806");
+            //cm.set_collect_time(string(cur_time));
+            //usec = start.tv_sec * 1000 * 1000 + start.tv_usec;
+            //ss<<usec;
+            //temp.append(ss.str());
+            int pack_size = cm.ByteSize() + 4;
+            char * pack = new char[pack_size];\
+            google::protobuf::io::ArrayOutputStream aos(pack,pack_size);
+            CodedOutputStream * coded_output = new CodedOutputStream(&aos);
+            coded_output->WriteVarint32(cm.ByteSize());
+            printf("size %d \n",cm.ByteSize());
+            cm.SerializeToCodedStream(coded_output);
+
+            client_socket << pack;
+            sleep(1);
+            //client_socket >> reply;
+            //cout << reply << endl;
+        }
+    }
+    catch ( SocketException& e )
+    {
+        std::cout << "Exception was caught:" << e.description() << "\n";
+    }
+
+}
+int main( int argc, char * argv[])
+{
+    SampleClient sc;
+    sc.start();   
+    return 0;
+}

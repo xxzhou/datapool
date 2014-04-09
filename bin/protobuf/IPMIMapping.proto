@@ -1,0 +1,14 @@
+message Map
+{
+    required uint32 type_id = 1;
+    optional string column = 2;
+    optional string sensor = 3;
+}
+message Action
+{
+    repeated Map data = 1;
+    required string act = 2;
+    optional string name = 3;
+    optional string token = 4;
+    optional uint32 collect_time = 5;
+}
